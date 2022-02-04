@@ -2,9 +2,11 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
+  <link rel="shortcut icon" type="image/x-icon" href="https://www.atinternet.com/favicon.png">
 	<link rel="stylesheet" type="text/css" href="https://cdn.theoplayer.com/dash/theoplayer/ui.css">
 	<script src="https://cdn.theoplayer.com/dash/theoplayer/THEOplayer.js"></script>
 	<script type="text/javascript" src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+  <script src="https://tag.aticdn.net/614713/smarttag.js"> </script>
 	<style>
 		html,
 		body {
@@ -23,9 +25,11 @@
 
 <body>
 	<div class="theoplayer-container video-js theoplayer-skin"></div>
+  <script src="PianoAnalyticsAVInsightsTHEOplayerAdapter.js"></script>
 	<script>
-  console.log("Version:", THEOplayer.version);
-  console.log("Features:", THEOplayer.features);
+  console.log("THEOplayer version:", THEOplayer.version);
+  console.log("THEOplayer features:", THEOplayer.features);
+  console.log("Piano Analytics version:", tag.version);
 
   var element = document.querySelector('.theoplayer-container');
   var player = new THEOplayer.Player(element, {
