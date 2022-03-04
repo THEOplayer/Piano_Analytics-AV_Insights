@@ -25,11 +25,11 @@
 
 <body>
 	<div class="theoplayer-container video-js theoplayer-skin"></div>
-  <script src="src/PianoAnalyticsAVInsightsTHEOplayerAdapter.js"></script>
+<!--  <script src="src/PianoAnalyticsAVInsightsTHEOplayerAdapter2.js"></script>-->
+  <script src="dist/PianoAnalyticsAVInsightsTHEOplayerAdapter.min.js"></script>
 	<script>
   console.log("THEOplayer version:", THEOplayer.version);
   console.log("THEOplayer features:", THEOplayer.features);
-  console.log("Piano Analytics version:", tag.version);
 
   var element = document.querySelector('.theoplayer-container');
   var player = new THEOplayer.Player(element, {
@@ -42,7 +42,8 @@
     }
   });
 
-  AVInsights.init(player, {debug: true});
+  // AVInsights.init(player, {debug: true});
+  let avInsights = new AVInsights(player, {debug: true, accountId: "614713"});
 
   player.muted = true;
   player.source = {
