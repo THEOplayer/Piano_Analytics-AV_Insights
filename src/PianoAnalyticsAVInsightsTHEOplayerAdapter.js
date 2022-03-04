@@ -1,16 +1,17 @@
 const accountId = 614713;
 const tag = new ATInternet.Tracker.Tag({ site: accountId });
 const media = new tag.avInsights.Media(5, 5);
-const DEBUG = true;
+let DEBUG = true;
 
 const AVInsights = {
-  init: function (player, native) {
+  init: function (player, config) {
     let firstPlayDone = false;
     let ended = false;
     let events = [];
     let adMedia = {};
     let isGoogleIma = false;
     let metadata = false;
+    DEBUG = config && config.debug;
     function getCursorPosition(valueInSeconds) {
       if (!valueInSeconds) {
         return Math.floor(player.currentTime * 1000);
@@ -229,7 +230,7 @@ const AVInsights = {
       player.addEventListener('play', adPlaybackResumed);
 
     });
-    if (native) {
+    if (config && config.native) {
       if (DEBUG) {
         console.log("sourcechange");
       }

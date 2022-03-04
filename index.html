@@ -25,7 +25,7 @@
 
 <body>
 	<div class="theoplayer-container video-js theoplayer-skin"></div>
-  <script src="PianoAnalyticsAVInsightsTHEOplayerAdapter.js"></script>
+  <script src="src/PianoAnalyticsAVInsightsTHEOplayerAdapter.js"></script>
 	<script>
   console.log("THEOplayer version:", THEOplayer.version);
   console.log("THEOplayer features:", THEOplayer.features);
@@ -42,7 +42,7 @@
     }
   });
 
-  AVInsights.init(player);
+  AVInsights.init(player, {debug: true});
 
   player.muted = true;
   player.source = {
