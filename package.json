@@ -1,0 +1,36 @@
+{
+  "name": "piano_analytics-av_insights",
+  "version": "0.0.1",
+  "description": "THEOplayer Web SDK integration of Piano Analytics AV Insights",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server",
+    "build-dev": "webpack",
+    "build": "webpack -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thijsl/Piano_Analytics-AV_Insights.git"
+  },
+  "keywords": [
+    "theoplayer",
+    "analytics",
+    "avinsights",
+    "atinternet"
+  ],
+  "author": "thijsl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thijsl/Piano_Analytics-AV_Insights/issues"
+  },
+  "homepage": "https://github.com/thijsl/Piano_Analytics-AV_Insights#readme",
+  "devDependencies": {
+    "http-server": "^14.1.0",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.6"
+  }
+}
