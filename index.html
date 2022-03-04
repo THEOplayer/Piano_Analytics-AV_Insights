@@ -44,10 +44,37 @@
 
   AVInsights.init(player);
 
+  player.muted = true;
   player.source = {
     "sources": [{
       "src": "//cdn.theoplayer.com/video/big_buck_bunny/big_buck_bunny_metadata.m3u8"
-    }]
+    }],
+    "ads": [
+      {
+            "sources": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=",
+            "timeOffset": "start",
+            "integration": "google-ima"
+      },
+      {
+            "sources": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=",
+            "timeOffset": "00:00:15",
+            "integration": "google-ima"
+        },
+        {
+            "sources": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=",
+            "timeOffset": "end",
+            "integration": "google-ima"
+        }
+    ],
+    "pianoAnalyticsAVInsights": {
+      metadata: {
+        av_content_id: "fge234",
+        av_content: "myContent",
+        av_content_type: "video",
+        av_content_duration: 596000,
+        av_content_genre: ["News", "Sport"]
+      }
+    }
   };
 	</script>
 </body>

@@ -1,0 +1,35 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+  <link rel="shortcut icon" type="image/x-icon" href="https://www.atinternet.com/favicon.png">
+  <script src="https://tag.aticdn.net/614713/smarttag.js"> </script>
+	<style>
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		video {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" controls>
+  <script src="PianoAnalyticsAVInsightsTHEOplayerAdapter.js"></script>
+	<script>
+  
+  const player = document.querySelector('video');
+
+  AVInsights.init(player, true);
+
+	</script>
+</body>
+
+</html>
