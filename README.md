@@ -4,23 +4,32 @@ This project provides a THEOplayer Web SDK integration of [Piano Analytics' AV I
 
 ## How to use
 
-1/ Run the following commands to get the Piano Analytics AV Insights adapter (i.e. `PianoAnalyticsAVInsightsTHEOplayerAdapter.js`), e.g.
+This section explains how to get the THEOplayer Piano Analytics AV Insights adapter up and running.
+This section assumes that you've correctly set up the THEOplayer Web SDK on your page (e.g. [index.html](index.html)).
+
+1/ Run the following commands to build the Piano Analytics AV Insights adapter, e.g.
 ```javascript
 npm install
 npm run build
 ```
+This `npm run build` command recompiles [`src/PianoAnalyticsAVInsightsTHEOplayerAdapter.js`][src/PianoAnalyticsAVInsightsTHEOplayerAdapter.js] into a minified [`dist/PianoAnalyticsAVInsightsTHEOplayerAdapter.min.js`](dist/PianoAnalyticsAVInsightsTHEOplayerAdapter.min.js).
 
-2/ Add the Piano Analytics AV Insights adapter to your page, e.g.
+2/ Add the Piano Analytics AV Insights tag, e.g.
 ```html
-<script src="src/PianoAnalyticsAVInsightsTHEOplayerAdapter.js"></script>
+<script src="https://tag.aticdn.net/614713/smarttag.js"> </script>
 ```
 
-3/ Initialize the adapter, e.g.
+3/ Add the Piano Analytics AV Insights adapter to your page, e.g.
+```html
+<script src="dist/PianoAnalyticsAVInsightsTHEOplayerAdapter.min.js"></script>
+```
+
+4/ Initialize the adapter, e.g.
 ```javascript
-AVInsights.init(player, {debug: true});
+const avInsights = new AVInsights(player, {debug: true, accountId: "614713"});
 ```
 
-4/ Set a video [`source`](https://docs.theoplayer.com/api-reference/web/theoplayer.sourcedescription.md) with the `pianoAnalyticsAVInsights` property, e.g.
+5/ Set a video [`source`](https://docs.theoplayer.com/api-reference/web/theoplayer.sourcedescription.md) with the `pianoAnalyticsAVInsights` property, e.g.
 ```javascript
 player.source = {
     "sources": [{
@@ -31,17 +40,7 @@ player.source = {
             "sources": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=",
             "timeOffset": "start",
             "integration": "google-ima"
-      },
-      {
-            "sources": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=",
-            "timeOffset": "00:00:15",
-            "integration": "google-ima"
-        },
-        {
-            "sources": "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=",
-            "timeOffset": "end",
-            "integration": "google-ima"
-        }
+      }
     ],
     "pianoAnalyticsAVInsights": {
       metadata: {

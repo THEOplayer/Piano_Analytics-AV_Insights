@@ -12,9 +12,8 @@ let babelLoader = {
 webpack_rules.push(babelLoader);
 module.exports = {
     mode: "development",
-    devtool: "inline-source-map",
     entry: {
-        extension: './src/PianoAnalyticsAVInsightsTHEOplayerAdapter2.js',
+        extension: './src/PianoAnalyticsAVInsightsTHEOplayerAdapter.js',
     },
     output: {
         filename: 'PianoAnalyticsAVInsightsTHEOplayerAdapter.min.js',

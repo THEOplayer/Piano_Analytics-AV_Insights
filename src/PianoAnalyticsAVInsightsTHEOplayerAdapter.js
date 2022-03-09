@@ -1,263 +1,266 @@
-const accountId = 614713;
-const tag = new ATInternet.Tracker.Tag({ site: accountId });
-const media = new tag.avInsights.Media(5, 5);
-let DEBUG = true;
+export class AVInsights {
 
-const AVInsights = {
-  init: function (player, config) {
-    let firstPlayDone = false;
-    let ended = false;
-    let events = [];
-    let adMedia = {};
-    let isGoogleIma = false;
-    let metadata = false;
-    DEBUG = config && config.debug;
-    function getCursorPosition(valueInSeconds) {
-      if (!valueInSeconds) {
-        return Math.floor(player.currentTime * 1000);
-      } else {
-        return Math.floor(valueInSeconds * 1000);
-      }
+  #accountId
+  #tag
+  #media
+  #adMedia
+  #metadata
+  #DEBUG
+  #firstPlayDone
+  #ended
+  #events
+  #isGoogleIma
+  #duration
+  #oldCursorPosition
+  #seeking
+  #didAdPlaybackStart
+
+  constructor(player, configuration) {
+    this.player = player;
+    this.configuration = configuration;
+    this.#init();
+  }
+  #init() {
+    this.#accountId = this.configuration?.accountId;
+    let tag;
+    if (this.#accountId) {
+      tag = new ATInternet.Tracker.Tag({ site: this.#accountId });
+    } else {
+      tag = new ATInternet.Tracker.Tag();
     }
-    function play(event) {
-      player.removeEventListener('play', play);
-      if (DEBUG) {
-        console.log("media.play(" + getCursorPosition() + ");")
-      }
-      media.play(getCursorPosition());
+    this.#media = new tag.avInsights.Media(5, 5);
+    this.#tag = tag;
+    this.#firstPlayDone = false;
+    this.#ended = false;
+    this.#events = [];
+    this.#adMedia = {};
+    this.#isGoogleIma = false;
+    this.#metadata = false;
+    this.#DEBUG = this.configuration?.debug;
+    this.#duration = -1;
+    this.#oldCursorPosition = -1;
+    this.#seeking = false;
+    this.#didAdPlaybackStart = false;
+    if (this.#DEBUG) {
+      console.log("Piano Analytics version:", this.#tag.version);
     }
-    function bufferStart(event) {
-      // player.removeEventListener('waiting', bufferStart);
-      if (DEBUG) {
-        console.log("media.bufferStart(" + getCursorPosition() + ");")
-      }
-      media.bufferStart(getCursorPosition());
-    }
-    function playbackStart(event) {
-      firstPlayDone = true;
-      player.removeEventListener('playing', playbackStart);
-      if (DEBUG) {
-        console.log("media.playbackStart(" + getCursorPosition(event.currentTime) + ");")
-      }
-      media.playbackStart(event.currentTime);
-    }
-    function playbackPaused(event) {
-      if (!ended) {
-        if (didAdPlaybackStart) {
-          if (DEBUG) {
-            console.log("adMedia.playbackPaused(" + getCursorPosition() + ");")
-          }
-          adMedia.playbackPaused(getCursorPosition());
-        } else {
-          if (DEBUG) {
-            console.log("media.playbackPaused(" + getCursorPosition() + ");")
-          }
-          media.playbackPaused(getCursorPosition());
-        }
-        
-      }
-    }
-    let oldCursorPosition;
-    let seeking = false;
-    function oldCursorPositionHandler(event) {
-      if (!seeking && !player.ads.playing) {
-        oldCursorPosition = player.currentTime;
-      }
-    }
-    duration = -1;
-    function durationHandler(event) {
-      if (!player.ads.playing) {
-        duration = event.duration * 1000;
-      }
-    }
-    function seekHandler(event) {
-      seeking = true;
-    }
-    function seek(event) {
-      seeking = false;
-      if (firstPlayDone) {
-        const newCursorPosition = player.currentTime;
-        if (DEBUG) {
-          console.log("media.seek(" + getCursorPosition(oldCursorPosition) + "," + getCursorPosition(newCursorPosition) + ");")
-          // console.log("media.playbackResumed(" + getCursorPosition() + ");")
-        }
-        media.seek(getCursorPosition(oldCursorPosition), getCursorPosition(newCursorPosition));
-        // media.playbackResumed(getCursorPosition());
-      }
-    }
-    function playbackResumed(event) {
-      if (firstPlayDone && !seeking && !player.ads.playing) {
-        if (DEBUG) {
-          console.log("media.playbackResumed(" + getCursorPosition() + ");")
-        }
-        media.playbackResumed(getCursorPosition());
-      }
-    }
-    function rebufferStart(event) {
-      if (firstPlayDone) {
-        if (DEBUG) {
-          console.log("media.rebufferStart(" + getCursorPosition() + ");")
-        }
-        media.rebufferStart(getCursorPosition());
-      }
-    }
-    function playbackStopped(event) {
-      if (firstPlayDone) {
-        ended = true;
-        if (DEBUG) {
-          console.log("media.playbackStopped(" + getCursorPosition() + ");")
-        }
-        media.playbackStopped(getCursorPosition());
-      }
-    }
-    function updateMedia() {
-      duration = metadata["av_content_duration"] || player.duration;
-      const properties = {
-        av_content_id: metadata["av_content_id"],
-        av_content: metadata["av_content"],
-        av_content_type: metadata["av_content_type"],
-        av_content_duration: duration,
-        av_content_genre: metadata["av_content_genre"],
-        av_player: "THEOplayer Web SDK",
-        av_player_version: window.THEOplayer && window.THEOplayer.version
-      };
-      if (DEBUG) {
-        console.log("calling media.setProps with", properties);
-      }
-      media.setProps(properties);
-    }
-    function setAdProps(event) {
-      isGoogleIma = event.ad.integration && (event.ad.integration == "google-ima");
-      // didAdPlaybackStart = true;
-      adMedia = new tag.avInsights.Media(5,5);
-      const ad = event.ad;
-      const isPostroll = (oldCursorPosition + 5 > (duration/1000));
-      const isPreroll = (oldCursorPosition < 0.5);
-      const adType = isPreroll ? ("preroll") : (isPostroll ? "postroll" : "midroll");
-      const properties = {
-          av_content_id : ad.creativeId,
-          av_content : adType+"-"+ ad.creativeId,
-          av_content_type : "video",
-          av_ad_type : adType,
-          av_content_linked : media.getProps()["av_content_id"], // the ID of the main content
-          av_content_duration : getCursorPosition(ad.duration)
-     };
-      if (DEBUG) {
-        console.log("calling adMedia.setProps with", properties);
-      }
-      adMedia.setProps(properties);
-    }
-    let didAdPlaybackStart = false;
-    function adPlay(event) {
-      if (player.ads.playing && !didAdPlaybackStart) {
-        if (isGoogleIma) {
-          media.playbackPaused(getCursorPosition(oldCursorPosition));
-          if (DEBUG) {
-            console.log("media.playbackPaused("+getCursorPosition(oldCursorPosition)+")");
-          }
-        }
-        if (DEBUG) {
-          console.log("adMedia.play("+getCursorPosition()+")");
-          console.log("adMedia.playbackStart("+getCursorPosition()+")");
-        }
-        adMedia.play(getCursorPosition());
-        adMedia.playbackStart(getCursorPosition());
-      }
-      if (player.ads.playing) {
-        didAdPlaybackStart = true;
-      }
-    }
-    function adPlaybackResumed(event) {
-      if (didAdPlaybackStart) {
-        if (DEBUG) {
-          console.log("adMedia.playbackResumed(" + getCursorPosition() + ");")
-        }
-        adMedia.playbackResumed(getCursorPosition());
-      }
-    }
-    function adPlaybackStopped(event) {
-      didAdPlaybackStart = false;
-      if (DEBUG) {
-        console.log("adMedia.playbackStopped("+getCursorPosition(event.ad.duration)+")");
-      }
-      adMedia.playbackStopped(getCursorPosition(event.ad.duration));
-    }
-    player.addEventListener('sourcechange', function (event) {
-      if (DEBUG) {
+    player.addEventListener('sourcechange', (event) => {
+      if (this.#DEBUG) {
         console.log("sourcechange", event.source);
       }
       if (!event.source.pianoAnalyticsAVInsights) {
         return;
       }
-      metadata = event.source.pianoAnalyticsAVInsights.metadata;
-      firstPlayDone = false;
-      ended = false;
-      seekTime = 0;
-      updateMedia();
-      events = [];
-      adMedia = {};
-      player.removeEventListener('play', play);
-      player.addEventListener('play', play);
-      player.removeEventListener('waiting', bufferStart);
-      player.addEventListener('waiting', bufferStart);
-      player.removeEventListener('playing', playbackStart);
-      player.addEventListener('playing', playbackStart);
-      player.removeEventListener('pause', playbackPaused);
-      player.addEventListener('pause', playbackPaused);
-      player.removeEventListener('timeupdate', oldCursorPositionHandler);
-      player.addEventListener('timeupdate', oldCursorPositionHandler);
-      player.removeEventListener('durationchange', durationHandler);
-      player.addEventListener('durationchange', durationHandler);
-      player.removeEventListener('seeking', seekHandler);
-      player.addEventListener('seeking', seekHandler);
-      player.removeEventListener('seeked', seek);
-      player.addEventListener('seeked', seek);
-      player.removeEventListener('playing', playbackResumed);
-      player.addEventListener('playing', playbackResumed);
-      // player.removeEventListener('waiting', rebufferStart);
-      // player.addEventListener('waiting', rebufferStart);
-      player.removeEventListener('ended', playbackStopped);
-      player.addEventListener('ended', playbackStopped);
+      this.#metadata = event.source.pianoAnalyticsAVInsights.metadata;
+      this.#firstPlayDone = false;
+      this.#ended = false;
+      this.#updateMedia();
+      this.#events = [];
+      this.#adMedia = {};
+      player.removeEventListener('play', this.#play);
+      player.addEventListener('play', this.#play);
+      player.removeEventListener('waiting', this.#bufferStart);
+      player.addEventListener('waiting', this.#bufferStart);
+      player.removeEventListener('playing', this.#playbackStart);
+      player.addEventListener('playing', this.#playbackStart);
+      player.removeEventListener('pause', this.#playbackPaused);
+      player.addEventListener('pause', this.#playbackPaused);
+      player.removeEventListener('timeupdate', this.#oldCursorPositionHandler);
+      player.addEventListener('timeupdate', this.#oldCursorPositionHandler);
+      player.removeEventListener('durationchange', this.#durationHandler);
+      player.addEventListener('durationchange', this.#durationHandler);
+      player.removeEventListener('seeking', this.#seekHandler);
+      player.addEventListener('seeking', this.#seekHandler);
+      player.removeEventListener('seeked', this.#seek);
+      player.addEventListener('seeked', this.#seek);
+      player.removeEventListener('playing', this.#playbackResumed);
+      player.addEventListener('playing', this.#playbackResumed);
+      player.removeEventListener('ended', this.#playbackStopped);
+      player.addEventListener('ended', this.#playbackStopped);
 
       // ADS
-      player.ads.removeEventListener("adbegin", setAdProps);
-      player.ads.addEventListener("adbegin", setAdProps);
-      player.removeEventListener("playing", adPlay);
-      player.addEventListener("playing", adPlay);
-      player.ads.removeEventListener("adend", adPlaybackStopped);
-      player.ads.addEventListener("adend", adPlaybackStopped);
-      player.removeEventListener('play', adPlaybackResumed);
-      player.addEventListener('play', adPlaybackResumed);
+      player.ads.removeEventListener("adbegin", this.#setAdProps);
+      player.ads.addEventListener("adbegin", this.#setAdProps);
+      player.removeEventListener("playing", this.#adPlay);
+      player.addEventListener("playing", this.#adPlay);
+      player.ads.removeEventListener("adend", this.#adPlaybackStopped);
+      player.ads.addEventListener("adend", this.#adPlaybackStopped);
+      player.removeEventListener('play', this.#adPlaybackResumed);
+      player.addEventListener('play', this.#adPlaybackResumed);
 
     });
-    if (config && config.native) {
-      if (DEBUG) {
-        console.log("sourcechange");
-      }
-      firstPlayDone = false;
-      ended = false;
-      seekTime = 0;
-      updateMedia();
-      player.removeEventListener('play', play);
-      player.addEventListener('play', play);
-      player.removeEventListener('waiting', bufferStart);
-      player.addEventListener('waiting', bufferStart);
-      player.removeEventListener('playing', playbackStart);
-      player.addEventListener('playing', playbackStart);
-      player.removeEventListener('pause', playbackPaused);
-      player.addEventListener('pause', playbackPaused);
-      player.removeEventListener('timeupdate', oldCursorPositionHandler);
-      player.addEventListener('timeupdate', oldCursorPositionHandler);
-      player.removeEventListener('seeking', seekHandler);
-      player.addEventListener('seeking', seekHandler);
-      player.removeEventListener('seeked', seek);
-      player.addEventListener('seeked', seek);
-      player.removeEventListener('playing', playbackResumed);
-      player.addEventListener('playing', playbackResumed);
-      // player.removeEventListener('waiting', rebufferStart);
-      // player.addEventListener('waiting', rebufferStart);
-      player.removeEventListener('ended', playbackStopped);
-      player.addEventListener('ended', playbackStopped);
+  }
+  #play = () => {
+    this.player.removeEventListener('play', this.#play);
+    if (this.#DEBUG) {
+      console.log("media.play(" + this.#getCursorPosition() + ");")
+    }
+    this.#media.play(this.#getCursorPosition());
+  }
+
+  #getCursorPosition = (valueInSeconds) => {
+    if (!valueInSeconds) {
+      return Math.floor(this.player.currentTime * 1000);
+    } else {
+      return Math.floor(valueInSeconds * 1000);
     }
   }
-};
+
+  #bufferStart = (event) => {
+    // player.removeEventListener('waiting', bufferStart);
+    if (this.#DEBUG) {
+      console.log("media.bufferStart(" + this.#getCursorPosition() + ");")
+    }
+    this.#media.bufferStart(this.#getCursorPosition());
+  }
+
+  #playbackStart = (event) => {
+    this.#firstPlayDone = true;
+    player.removeEventListener('playing', this.#playbackStart);
+    if (this.#DEBUG) {
+      console.log("media.playbackStart(" + this.#getCursorPosition(event.currentTime) + ");")
+    }
+    this.#media.playbackStart(event.currentTime);
+  }
+
+  #playbackPaused = (event) => {
+    if (!this.#ended) {
+      if (this.#didAdPlaybackStart) {
+        if (this.#DEBUG) {
+          console.log("adMedia.playbackPaused(" + this.#getCursorPosition() + ");")
+        }
+        this.#adMedia.playbackPaused(this.#getCursorPosition());
+      } else {
+        if (this.#DEBUG) {
+          console.log("media.playbackPaused(" + this.#getCursorPosition() + ");")
+        }
+        this.#media.playbackPaused(this.#getCursorPosition());
+      }
+
+    }
+  }
+
+  #oldCursorPositionHandler = (event) => {
+    if (!this.#seeking && !this.player.ads.playing) {
+      this.#oldCursorPosition = this.player.currentTime;
+    }
+  }
+
+  #durationHandler = (event) => {
+    if (!this.player.ads.playing) {
+      this.#duration = event.duration * 1000;
+    }
+  }
+
+  #seekHandler = (event) => {
+    this.#seeking = true;
+  }
+
+  #seek = (event) => {
+    this.#seeking = false;
+    if (this.#firstPlayDone) {
+      const newCursorPosition = this.player.currentTime;
+      if (newCursorPosition == this.#oldCursorPosition) {
+        return; // useful to avoid seek(0,0) after a pre-roll
+      }
+      if (this.#DEBUG) {
+        console.log("media.seek(" + this.#getCursorPosition(this.#oldCursorPosition) + "," + this.#getCursorPosition(newCursorPosition) + ");")
+      }
+      this.#media.seek(this.#getCursorPosition(this.#oldCursorPosition), this.#getCursorPosition(newCursorPosition));
+    }
+  }
+
+  #playbackResumed = (event) => {
+    if (this.#firstPlayDone && !this.#seeking && !this.player.ads.playing) {
+      if (this.#DEBUG) {
+        console.log("media.playbackResumed(" + this.#getCursorPosition() + ");")
+      }
+      this.#media.playbackResumed(this.#getCursorPosition());
+    }
+  }
+
+  #playbackStopped = (event) => {
+    if (this.#firstPlayDone) {
+      this.#ended = true;
+      if (this.#DEBUG) {
+        console.log("media.playbackStopped(" + this.#getCursorPosition() + ");")
+      }
+      this.#media.playbackStopped(this.#getCursorPosition());
+    }
+  }
+
+  #updateMedia = () => {
+    this.#duration = this.#metadata["av_content_duration"] || player.duration;
+    const properties = {
+      av_content_id: this.#metadata["av_content_id"],
+      av_content: this.#metadata["av_content"],
+      av_content_type: this.#metadata["av_content_type"],
+      av_content_duration: this.#duration,
+      av_content_genre: this.#metadata["av_content_genre"],
+      av_player: "THEOplayer Web SDK",
+      av_player_version: window.THEOplayer && window.THEOplayer.version
+    };
+    if (this.#DEBUG) {
+      console.log("calling media.setProps with", properties);
+    }
+    this.#media.setProps(properties);
+  }
+
+  #setAdProps = (event) => {
+    this.#isGoogleIma = event.ad.integration && (event.ad.integration == "google-ima");
+    this.#adMedia = new this.#tag.avInsights.Media(5,5);
+    const ad = event.ad;
+    const isPostroll = (this.#oldCursorPosition + 5 > (this.#duration/1000));
+    const isPreroll = (this.#oldCursorPosition < 0.5);
+    const adType = isPreroll ? ("preroll") : (isPostroll ? "postroll" : "midroll");
+    const properties = {
+      av_content_id : ad.creativeId,
+      av_content : adType+"-"+ ad.creativeId,
+      av_content_type : "video",
+      av_ad_type : adType,
+      av_content_linked : this.#media.getProps()["av_content_id"], // the ID of the main content
+      av_content_duration : this.#getCursorPosition(ad.duration)
+    };
+    if (this.#DEBUG) {
+      console.log("calling adMedia.setProps with", properties);
+    }
+    this.#adMedia.setProps(properties);
+  }
+
+  #adPlay = (event) => {
+    if (this.player.ads.playing && !this.#didAdPlaybackStart) {
+      if (this.#isGoogleIma) {
+        this.#media.playbackPaused(this.#getCursorPosition(this.#oldCursorPosition));
+        if (this.#DEBUG) {
+          console.log("media.playbackPaused("+this.#getCursorPosition(this.#oldCursorPosition)+")");
+        }
+      }
+      if (this.#DEBUG) {
+        console.log("adMedia.play("+this.#getCursorPosition()+")");
+        console.log("adMedia.playbackStart("+this.#getCursorPosition()+")");
+      }
+      this.#adMedia.play(this.#getCursorPosition());
+      this.#adMedia.playbackStart(this.#getCursorPosition());
+    }
+    if (this.player.ads.playing) {
+      this.#didAdPlaybackStart = true;
+    }
+  }
+  #adPlaybackResumed = (event) => {
+    if (this.#didAdPlaybackStart) {
+      if (this.#DEBUG) {
+        console.log("adMedia.playbackResumed(" + this.#getCursorPosition() + ");")
+      }
+      this.#adMedia.playbackResumed(this.#getCursorPosition());
+    }
+  }
+  #adPlaybackStopped = (event) => {
+    this.#didAdPlaybackStart = false;
+    if (this.#DEBUG) {
+      console.log("adMedia.playbackStopped("+this.#getCursorPosition(event.ad.duration)+")");
+    }
+    this.#adMedia.playbackStopped(this.#getCursorPosition(event.ad.duration));
+  }
+
+}
+window.AVInsights = AVInsights;
