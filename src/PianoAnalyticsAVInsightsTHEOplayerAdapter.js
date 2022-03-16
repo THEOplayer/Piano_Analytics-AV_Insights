@@ -147,8 +147,12 @@ export class AVInsights {
   }
 
   #durationHandler = (event) => {
-    if (!this.player.ads.playing) {
+    if (!this.player.ads.playing && !isNaN(event.duration)) {
       this.#duration = event.duration * 1000;
+      if (this.#DEBUG) {
+        console.log("setting media['av_content_duration'] to " + this.#duration);
+      }
+      this.#media.set('av_content_duration', this.#duration);
     }
   }
 
