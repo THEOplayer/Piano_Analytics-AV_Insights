@@ -44,7 +44,7 @@ export class AVInsights {
     if (this.#DEBUG) {
       console.log("Piano Analytics version:", this.#tag.version);
     }
-    player.addEventListener('sourcechange', (event) => {
+    this.player.addEventListener('sourcechange', (event) => {
       if (this.#DEBUG) {
         console.log("sourcechange", event.source);
       }
@@ -57,36 +57,36 @@ export class AVInsights {
       this.#updateMedia();
       this.#events = [];
       this.#adMedia = {};
-      player.removeEventListener('play', this.#play);
-      player.addEventListener('play', this.#play);
-      player.removeEventListener('waiting', this.#bufferStart);
-      player.addEventListener('waiting', this.#bufferStart);
-      player.removeEventListener('playing', this.#playbackStart);
-      player.addEventListener('playing', this.#playbackStart);
-      player.removeEventListener('pause', this.#playbackPaused);
-      player.addEventListener('pause', this.#playbackPaused);
-      player.removeEventListener('timeupdate', this.#oldCursorPositionHandler);
-      player.addEventListener('timeupdate', this.#oldCursorPositionHandler);
-      player.removeEventListener('durationchange', this.#durationHandler);
-      player.addEventListener('durationchange', this.#durationHandler);
-      player.removeEventListener('seeking', this.#seekHandler);
-      player.addEventListener('seeking', this.#seekHandler);
-      player.removeEventListener('seeked', this.#seek);
-      player.addEventListener('seeked', this.#seek);
-      player.removeEventListener('playing', this.#playbackResumed);
-      player.addEventListener('playing', this.#playbackResumed);
-      player.removeEventListener('ended', this.#playbackStopped);
-      player.addEventListener('ended', this.#playbackStopped);
+      this.player.removeEventListener('play', this.#play);
+      this.player.addEventListener('play', this.#play);
+      this.player.removeEventListener('waiting', this.#bufferStart);
+      this.player.addEventListener('waiting', this.#bufferStart);
+      this.player.removeEventListener('playing', this.#playbackStart);
+      this.player.addEventListener('playing', this.#playbackStart);
+      this.player.removeEventListener('pause', this.#playbackPaused);
+      this.player.addEventListener('pause', this.#playbackPaused);
+      this.player.removeEventListener('timeupdate', this.#oldCursorPositionHandler);
+      this.player.addEventListener('timeupdate', this.#oldCursorPositionHandler);
+      this.player.removeEventListener('durationchange', this.#durationHandler);
+      this.player.addEventListener('durationchange', this.#durationHandler);
+      this.player.removeEventListener('seeking', this.#seekHandler);
+      this.player.addEventListener('seeking', this.#seekHandler);
+      this.player.removeEventListener('seeked', this.#seek);
+      this.player.addEventListener('seeked', this.#seek);
+      this.player.removeEventListener('playing', this.#playbackResumed);
+      this.player.addEventListener('playing', this.#playbackResumed);
+      this.player.removeEventListener('ended', this.#playbackStopped);
+      this.player.addEventListener('ended', this.#playbackStopped);
 
       // ADS
-      player.ads.removeEventListener("adbegin", this.#setAdProps);
-      player.ads.addEventListener("adbegin", this.#setAdProps);
-      player.removeEventListener("playing", this.#adPlay);
-      player.addEventListener("playing", this.#adPlay);
-      player.ads.removeEventListener("adend", this.#adPlaybackStopped);
-      player.ads.addEventListener("adend", this.#adPlaybackStopped);
-      player.removeEventListener('play', this.#adPlaybackResumed);
-      player.addEventListener('play', this.#adPlaybackResumed);
+      this.player.ads.removeEventListener("adbegin", this.#setAdProps);
+      this.player.ads.addEventListener("adbegin", this.#setAdProps);
+      this.player.removeEventListener("playing", this.#adPlay);
+      this.player.addEventListener("playing", this.#adPlay);
+      this.player.ads.removeEventListener("adend", this.#adPlaybackStopped);
+      this.player.ads.addEventListener("adend", this.#adPlaybackStopped);
+      this.player.removeEventListener('play', this.#adPlaybackResumed);
+      this.player.addEventListener('play', this.#adPlaybackResumed);
 
     });
   }
@@ -116,7 +116,7 @@ export class AVInsights {
 
   #playbackStart = (event) => {
     this.#firstPlayDone = true;
-    player.removeEventListener('playing', this.#playbackStart);
+    this.player.removeEventListener('playing', this.#playbackStart);
     if (this.#DEBUG) {
       console.log("media.playbackStart(" + this.#getCursorPosition(event.currentTime) + ");")
     }
@@ -190,7 +190,7 @@ export class AVInsights {
   }
 
   #updateMedia = () => {
-    this.#duration = this.#metadata["av_content_duration"] || player.duration;
+    this.#duration = this.#metadata["av_content_duration"] || this.player.duration;
     const properties = {
       av_content_id: this.#metadata["av_content_id"],
       av_content: this.#metadata["av_content"],
