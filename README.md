@@ -56,9 +56,11 @@ player.source = {
 
 ## Remarks
 
-1. An example is available at [`index.html`](index.html).
+1. This integration is tested with Piano Analytics' AV Insights v5.29.3. Different versions might not be compatible.
 
-2. This adapter has been specifically certified for the following features:
+2. An example is available at [`index.html`](index.html).
+
+3. This adapter has been specifically certified for the following features:
     * HLS VOD streams
     * Advertisements pre-rolls using [THEOplayer's Google IMA integration](https://docs.theoplayer.com/how-to-guides/01-ads/10-google-ima.md/)
 
