@@ -149,10 +149,13 @@ export class AVInsights {
   #durationHandler = (event) => {
     if (!this.player.ads.playing && !isNaN(event.duration)) {
       this.#duration = event.duration * 1000;
+      const broadcastingType = (this.#duration == Infinity) ? "Live" : "VOD";
       if (this.#DEBUG) {
         console.log("setting media['av_content_duration'] to " + this.#duration);
+        console.log("setting media['av_broadcasting_type'] to " + broadcastingType);
       }
       this.#media.set('av_content_duration', this.#duration);
+      this.#media.set('av_broadcasting_type', broadcastingType);
     }
   }
 
@@ -202,7 +205,8 @@ export class AVInsights {
       av_content_duration: this.#duration,
       av_content_genre: this.#metadata["av_content_genre"],
       av_player: "THEOplayer Web SDK",
-      av_player_version: window.THEOplayer && window.THEOplayer.version
+      av_player_version: window.THEOplayer && window.THEOplayer.version,
+      platform: "web"
     };
     if (this.#DEBUG) {
       console.log("calling media.setProps with", properties);
@@ -223,7 +227,9 @@ export class AVInsights {
       av_content_type : "video",
       av_ad_type : adType,
       av_content_linked : this.#media.getProps()["av_content_id"], // the ID of the main content
-      av_content_duration : this.#getCursorPosition(ad.duration)
+      av_content_duration : this.#getCursorPosition(ad.duration),
+      av_broadcasting_type : "VOD",
+      platform: "web"
     };
     if (this.#DEBUG) {
       console.log("calling adMedia.setProps with", properties);
